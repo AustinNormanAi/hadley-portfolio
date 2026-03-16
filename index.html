@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hadley Designs — Acquisition Funnel Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Inter', sans-serif; background: #FFFAF5; color: #2D3436; min-height: 100vh; }
+    .container { max-width: 720px; margin: 0 auto; padding: 60px 24px; }
+    .badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #587A83; margin-bottom: 16px; }
+    h1 { font-family: 'Playfair Display', serif; font-size: 36px; font-weight: 700; line-height: 1.2; margin-bottom: 12px; color: #2D3436; }
+    h1 span { color: #F196B1; }
+    .subtitle { font-size: 16px; color: #6B7280; line-height: 1.6; margin-bottom: 48px; }
+    .cards { display: flex; flex-direction: column; gap: 24px; }
+    .card { background: #fff; border-radius: 16px; padding: 32px; border: 1px solid #f0e8e0; transition: all 0.3s ease; text-decoration: none; color: inherit; display: block; }
+    .card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.08); border-color: #F196B1; }
+    .card-tag { font-size: 11px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: #fff; background: #587A83; display: inline-block; padding: 4px 10px; border-radius: 4px; margin-bottom: 12px; }
+    .card-tag.pink { background: #F196B1; }
+    .card-tag.sage { background: #587A83; }
+    .card h2 { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 700; margin-bottom: 8px; line-height: 1.3; }
+    .card p { font-size: 14px; color: #6B7280; line-height: 1.6; }
+    .card .arrow { display: inline-block; margin-top: 16px; font-size: 14px; font-weight: 600; color: #F196B1; }
+    .footer { margin-top: 60px; text-align: center; font-size: 13px; color: #9CA3AF; }
+    .footer strong { color: #587A83; }
+    @media (max-width: 600px) {
+      h1 { font-size: 28px; }
+      .card { padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="badge">Portfolio Demo</div>
+    <h1>Hadley Designs<br><span>Acquisition Funnel Examples</span></h1>
+    <p class="subtitle">Three pre-built acquisition pages for the Preschool Head Start Kit — each designed to test a different angle and entry point for cold traffic.</p>
+
+    <div class="cards">
+      <a href="quiz.html" class="card">
+        <div class="card-tag pink">Interactive Quiz</div>
+        <h2>Is Your Child On Track? Take the 60-Second Assessment</h2>
+        <p>5-question interactive quiz that segments visitors by child's age, learning style, and parent concerns. Captures email before revealing a personalized "Learning Readiness Score" with product recommendation.</p>
+        <span class="arrow">Preview Quiz &rarr;</span>
+      </a>
+
+      <a href="listicle.html" class="card">
+        <div class="card-tag sage">Listicle</div>
+        <h2>5 Reasons 2 Million Moms Are Replacing Screen Time With This $49 Kit</h2>
+        <p>Editorial blog-style article that builds the case through science, founder credibility, social proof, and value stacking. Floating CTA bar appears on scroll. Feels like reading a parenting blog, not an ad.</p>
+        <span class="arrow">Preview Listicle &rarr;</span>
+      </a>
+
+      <a href="advertorial.html" class="card">
+        <div class="card-tag sage">Advertorial</div>
+        <h2>This Former PreK Teacher's Simple 10-Minute Method Is Helping 2 Million Kids Get Ahead</h2>
+        <p>Magazine-style feature article following a story arc: hook → problem → discovery → solution → proof → offer. Includes comparison table, review cards, and bundle pricing breakdown.</p>
+        <span class="arrow">Preview Advertorial &rarr;</span>
+      </a>
+    </div>
+
+    <div class="footer">
+      Built by <strong>Austin</strong> &mdash; Acquisition Funnel Strategy & Execution
+    </div>
+  </div>
+</body>
+</html>
