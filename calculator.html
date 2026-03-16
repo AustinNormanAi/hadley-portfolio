@@ -1,0 +1,819 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hadley Designs — Target CPA Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --sage: #587A83;
+  --pink: #F196B1;
+  --light-pink: #FFF0F5;
+  --warm-white: #FFFAF5;
+  --dark: #2D3436;
+  --green: #10b981;
+  --red: #ef4444;
+  --green-bg: #ecfdf5;
+  --red-bg: #fef2f2;
+  --border: #e2e8f0;
+  --calc-bg: #f0f5f6;
+  --row-alt: #f8fafb;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--warm-white);
+  color: var(--dark);
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+/* Sticky Header */
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--sage);
+  color: #fff;
+  padding: 16px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.header-left h1 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+.header-left p {
+  font-size: 12px;
+  font-weight: 400;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+.btn-reset {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.3);
+  padding: 8px 18px;
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-reset:hover { background: rgba(255,255,255,0.25); }
+
+/* Insight Bar */
+.insight-bar {
+  background: var(--light-pink);
+  border-bottom: 1px solid var(--pink);
+  padding: 12px 32px;
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  font-weight: 500;
+}
+.insight-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.insight-item .label { color: #666; }
+.insight-item .value { font-weight: 700; font-size: 14px; }
+
+/* Main Layout */
+.main {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 0;
+  min-height: calc(100vh - 120px);
+}
+
+/* Input Panel */
+.input-panel {
+  background: #fff;
+  border-right: 1px solid var(--border);
+  padding: 24px;
+  overflow-y: auto;
+}
+.input-panel h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sage);
+  margin-bottom: 4px;
+}
+.input-panel .subtitle {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.input-group {
+  margin-bottom: 12px;
+}
+.input-group label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 4px;
+}
+.input-group label .tip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--border);
+  color: #888;
+  font-size: 10px;
+  font-weight: 700;
+  cursor: help;
+  flex-shrink: 0;
+  margin-left: 6px;
+}
+.input-group label .tip .tiptext {
+  visibility: hidden;
+  opacity: 0;
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--dark);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 400;
+  padding: 8px 10px;
+  border-radius: 6px;
+  width: 220px;
+  text-align: left;
+  line-height: 1.4;
+  z-index: 50;
+  pointer-events: none;
+  transition: opacity 0.15s;
+}
+.input-group label .tip .tiptext::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--dark);
+}
+.input-group label .tip:hover .tiptext { visibility: visible; opacity: 1; }
+
+.input-wrap {
+  position: relative;
+}
+.input-wrap .prefix {
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: #999;
+  pointer-events: none;
+  font-weight: 500;
+}
+.input-wrap .suffix {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 13px;
+  color: #999;
+  pointer-events: none;
+  font-weight: 500;
+}
+.input-wrap input {
+  width: 100%;
+  padding: 8px 12px 8px 24px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--dark);
+  background: #fff;
+  transition: border-color 0.2s;
+}
+.input-wrap input:focus {
+  outline: none;
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(88,122,131,0.1);
+}
+.input-wrap input.has-suffix { padding-right: 30px; }
+.input-wrap input.no-prefix { padding-left: 12px; }
+
+.input-wrap input[readonly] {
+  background: var(--calc-bg);
+  border-color: #d1dde0;
+  color: var(--sage);
+  cursor: default;
+}
+
+.input-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 18px 0;
+}
+
+.section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--sage);
+  margin-bottom: 12px;
+  margin-top: 4px;
+}
+
+/* Scenario Panel */
+.scenario-panel {
+  padding: 24px;
+  overflow-x: auto;
+}
+.scenario-panel h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sage);
+  margin-bottom: 16px;
+}
+
+.scenario-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  min-width: 700px;
+}
+.scenario-table th {
+  background: var(--sage);
+  color: #fff;
+  padding: 10px 14px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.scenario-table th:first-child {
+  text-align: left;
+  min-width: 200px;
+}
+.scenario-table th .th-sub {
+  font-weight: 400;
+  opacity: 0.8;
+  display: block;
+  font-size: 10px;
+}
+.scenario-table td {
+  padding: 8px 14px;
+  text-align: right;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.scenario-table td:first-child {
+  text-align: left;
+  color: #555;
+  font-weight: 500;
+}
+.scenario-table tr:nth-child(even) td { background: var(--row-alt); }
+.scenario-table tr.section-header td {
+  background: var(--light-pink);
+  font-weight: 700;
+  color: var(--sage);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid var(--pink);
+  padding: 10px 14px;
+}
+.scenario-table tr.highlight td {
+  background: var(--green-bg);
+  font-weight: 700;
+}
+.scenario-table tr.highlight-strong td {
+  background: #d1fae5;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.profit { color: var(--green); font-weight: 700; }
+.loss { color: var(--red); font-weight: 700; }
+
+/* Compound Section */
+.compound-section {
+  padding: 24px 32px 48px;
+  background: #fff;
+  border-top: 2px solid var(--border);
+}
+.compound-section h2 {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--sage);
+  margin-bottom: 4px;
+}
+.compound-section .subtitle {
+  font-size: 12px;
+  color: #888;
+  margin-bottom: 16px;
+}
+
+.compound-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  max-width: 1000px;
+}
+.compound-table th {
+  background: var(--sage);
+  color: #fff;
+  padding: 10px 14px;
+  text-align: right;
+  font-size: 12px;
+  font-weight: 600;
+}
+.compound-table th:first-child { text-align: left; }
+.compound-table th:last-child { text-align: left; min-width: 280px; }
+.compound-table td {
+  padding: 10px 14px;
+  text-align: right;
+  font-weight: 500;
+  border-bottom: 1px solid var(--border);
+}
+.compound-table td:first-child { text-align: left; font-weight: 600; }
+.compound-table td:last-child {
+  text-align: left;
+  font-size: 11px;
+  color: #888;
+  font-weight: 400;
+}
+.compound-table tr:nth-child(even) td { background: var(--row-alt); }
+
+/* Responsive */
+@media (max-width: 960px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .input-panel {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .header {
+    padding: 12px 16px;
+  }
+  .header-left h1 { font-size: 15px; }
+  .insight-bar { padding: 10px 16px; gap: 16px; }
+  .input-panel, .scenario-panel, .compound-section { padding: 16px; }
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>Hadley Designs &mdash; Target CPA Calculator</h1>
+    <p>Preschool Head Start Kit &mdash; Unit Economics &amp; Scenario Modeling</p>
+  </div>
+  <button class="btn-reset" onclick="resetDefaults()">Reset to Defaults</button>
+</div>
+
+<div class="insight-bar" id="insightBar">
+  <div class="insight-item">
+    <span class="label">Breakeven CPA:</span>
+    <span class="value" id="insightCPA">$32.00</span>
+  </div>
+  <div class="insight-item">
+    <span class="label">Breakeven ROAS:</span>
+    <span class="value" id="insightROAS">1.53x</span>
+  </div>
+  <div class="insight-item" id="insightStatusWrap">
+    <span class="label">Day-one status:</span>
+    <span class="value" id="insightStatus"></span>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- INPUT PANEL -->
+  <div class="input-panel">
+    <h2>Unit Economics Inputs</h2>
+    <p class="subtitle">Across the past 3 months, what is your:</p>
+
+    <div class="section-label">Product Economics</div>
+
+    <div class="input-group">
+      <label>
+        <span>Average Order Value (AOV)</span>
+        <span class="tip">?<span class="tiptext">The average dollar amount per order, including all items in the cart.</span></span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="aov" value="49" step="0.01" min="0">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        <span>Cost of Goods (COGS) per AOV</span>
+        <span class="tip">?<span class="tiptext">Direct product cost per average order: materials, manufacturing, packaging.</span></span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="cogs" value="12" step="0.01" min="0">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        <span>Shipping &amp; Handling Costs per AOV</span>
+        <span class="tip">?<span class="tiptext">Cost to ship one average order to the customer (your cost, not what you charge).</span></span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="sh" value="5" step="0.01" min="0">
+      </div>
+    </div>
+
+    <hr class="input-divider">
+    <div class="section-label">Auto-Calculated</div>
+
+    <div class="input-group">
+      <label>
+        <span>Landed Costs per AOV</span>
+        <span class="tip">?<span class="tiptext">COGS + Shipping &amp; Handling. Total cost to deliver one average order.</span></span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="text" id="landed" readonly>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        <span>Gross Profit $ (per AOV)</span>
+        <span class="tip">?<span class="tiptext">AOV minus Landed Costs. What you keep before ad spend.</span></span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="text" id="grossProfit" readonly>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        <span>Gross Margin %</span>
+        <span class="tip">?<span class="tiptext">Gross Profit / AOV. Higher is better; most e-com targets 60%+.</span></span>
+      </label>
+      <div class="input-wrap">
+        <input type="text" id="grossMargin" readonly class="no-prefix has-suffix">
+        <span class="suffix">%</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        <span>Gross Breakeven CPA</span>
+        <span class="tip">?<span class="tiptext">Maximum you can pay to acquire a customer and still break even on day one (equals Gross Profit).</span></span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="text" id="breakCPA" readonly>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        <span>Gross Breakeven ROAS</span>
+        <span class="tip">?<span class="tiptext">AOV / Gross Profit. The minimum ROAS to break even on day one before LTV.</span></span>
+      </label>
+      <div class="input-wrap">
+        <input type="text" id="breakROAS" readonly class="no-prefix has-suffix">
+        <span class="suffix">x</span>
+      </div>
+    </div>
+
+    <hr class="input-divider">
+    <div class="section-label">Lifetime Value &amp; Ad Spend</div>
+
+    <div class="input-group">
+      <label>
+        <span>3-Month LTV</span>
+        <span class="tip">?<span class="tiptext">Total revenue a customer generates in their first 3 months (including the initial order).</span></span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="ltv3" value="85" step="0.01" min="0">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        <span>3-Month NC ROAS</span>
+        <span class="tip">?<span class="tiptext">New Customer Return on Ad Spend over the past 3 months. Revenue from new customers / Ad Spend.</span></span>
+      </label>
+      <div class="input-wrap">
+        <input type="number" id="ncRoas" value="1.20" step="0.01" min="0" class="no-prefix has-suffix">
+        <span class="suffix">x</span>
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        <span>Monthly Ad Spend (avg)</span>
+        <span class="tip">?<span class="tiptext">Average monthly spend on paid acquisition over the past 3 months.</span></span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="adSpend" value="30000" step="100" min="0">
+      </div>
+    </div>
+
+    <div class="input-group">
+      <label>
+        <span>6-Month LTV</span>
+        <span class="tip">?<span class="tiptext">Total revenue a customer generates in their first 6 months (including the initial order).</span></span>
+      </label>
+      <div class="input-wrap">
+        <span class="prefix">$</span>
+        <input type="number" id="ltv6" value="120" step="0.01" min="0">
+      </div>
+    </div>
+  </div>
+
+  <!-- SCENARIO PANEL -->
+  <div class="scenario-panel">
+    <h2>Scenario Modeling</h2>
+    <table class="scenario-table" id="scenarioTable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Breakeven<span class="th-sub">Gross BE</span></th>
+          <th id="s1Head">Scenario 1<span class="th-sub">Current</span></th>
+          <th id="s2Head">Scenario 2<span class="th-sub">1.5x Current</span></th>
+          <th id="s3Head">Scenario 3<span class="th-sub">0.67x Current</span></th>
+          <th id="s4Head">Scenario 4<span class="th-sub">2x Current</span></th>
+        </tr>
+      </thead>
+      <tbody id="scenarioBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- COMPOUND SECTION -->
+<div class="compound-section">
+  <h2>Compound Profits Modeled Off Scenario 1</h2>
+  <p class="subtitle">How initial acquisition economics compound into profits over time through customer retention.</p>
+  <table class="compound-table" id="compoundTable">
+    <thead>
+      <tr>
+        <th>Month</th>
+        <th>Day-One Profit</th>
+        <th>Retention Profit</th>
+        <th>Total Profit (MoM)</th>
+        <th>Cumulative Profit</th>
+        <th>Notes</th>
+      </tr>
+    </thead>
+    <tbody id="compoundBody"></tbody>
+  </table>
+</div>
+
+<script>
+// Defaults
+const DEFAULTS = {
+  aov: 49, cogs: 12, sh: 5,
+  ltv3: 85, ncRoas: 1.20, adSpend: 30000, ltv6: 120
+};
+
+// Gather inputs
+function getInputs() {
+  return {
+    aov: parseFloat(document.getElementById('aov').value) || 0,
+    cogs: parseFloat(document.getElementById('cogs').value) || 0,
+    sh: parseFloat(document.getElementById('sh').value) || 0,
+    ltv3: parseFloat(document.getElementById('ltv3').value) || 0,
+    ncRoas: parseFloat(document.getElementById('ncRoas').value) || 0,
+    adSpend: parseFloat(document.getElementById('adSpend').value) || 0,
+    ltv6: parseFloat(document.getElementById('ltv6').value) || 0
+  };
+}
+
+function fmt$(v) {
+  if (!isFinite(v)) return '$0.00';
+  const neg = v < 0;
+  const abs = Math.abs(v);
+  const str = abs.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return neg ? '-$' + str : '$' + str;
+}
+function fmtComma(v) {
+  if (!isFinite(v)) return '0';
+  return Math.round(v).toLocaleString('en-US');
+}
+function fmtPct(v) {
+  if (!isFinite(v)) return '0.0%';
+  return (v * 100).toFixed(1) + '%';
+}
+function fmtRoas(v) {
+  if (!isFinite(v)) return '0.00x';
+  return v.toFixed(2) + 'x';
+}
+
+function profitClass(v) { return v >= 0 ? 'profit' : 'loss'; }
+function profitCell(v, formatter) {
+  const cls = profitClass(v);
+  return '<span class="' + cls + '">' + formatter(v) + '</span>';
+}
+
+function resetDefaults() {
+  document.getElementById('aov').value = DEFAULTS.aov;
+  document.getElementById('cogs').value = DEFAULTS.cogs;
+  document.getElementById('sh').value = DEFAULTS.sh;
+  document.getElementById('ltv3').value = DEFAULTS.ltv3;
+  document.getElementById('ncRoas').value = DEFAULTS.ncRoas;
+  document.getElementById('adSpend').value = DEFAULTS.adSpend;
+  document.getElementById('ltv6').value = DEFAULTS.ltv6;
+  recalc();
+}
+
+function recalc() {
+  const i = getInputs();
+  const landed = i.cogs + i.sh;
+  const grossProfit = i.aov - landed;
+  const grossMargin = i.aov > 0 ? grossProfit / i.aov : 0;
+  const breakCPA = grossProfit;
+  const breakROAS = grossProfit > 0 ? i.aov / grossProfit : 0;
+
+  // Set auto-calc fields
+  document.getElementById('landed').value = landed.toFixed(2);
+  document.getElementById('grossProfit').value = grossProfit.toFixed(2);
+  document.getElementById('grossMargin').value = (grossMargin * 100).toFixed(1);
+  document.getElementById('breakCPA').value = breakCPA.toFixed(2);
+  document.getElementById('breakROAS').value = breakROAS.toFixed(2);
+
+  // Insight bar
+  document.getElementById('insightCPA').textContent = fmt$(breakCPA);
+  document.getElementById('insightROAS').textContent = fmtRoas(breakROAS);
+
+  // Scenario multipliers: breakeven, 1x, 1.5x, 0.67x, 2x
+  const beRoas = breakROAS;
+  const scenarios = [
+    { label: 'Breakeven', roas: beRoas },
+    { label: 'Scenario 1', roas: i.ncRoas },
+    { label: 'Scenario 2', roas: i.ncRoas * 1.5 },
+    { label: 'Scenario 3', roas: i.ncRoas * 0.67 },
+    { label: 'Scenario 4', roas: i.ncRoas * 2.0 }
+  ];
+
+  // Update headers
+  document.getElementById('s1Head').innerHTML = 'Scenario 1<span class="th-sub">NC ROAS ' + fmtRoas(i.ncRoas) + '</span>';
+  document.getElementById('s2Head').innerHTML = 'Scenario 2<span class="th-sub">NC ROAS ' + fmtRoas(i.ncRoas * 1.5) + '</span>';
+  document.getElementById('s3Head').innerHTML = 'Scenario 3<span class="th-sub">NC ROAS ' + fmtRoas(i.ncRoas * 0.67) + '</span>';
+  document.getElementById('s4Head').innerHTML = 'Scenario 4<span class="th-sub">NC ROAS ' + fmtRoas(i.ncRoas * 2.0) + '</span>';
+
+  // Compute scenario data
+  const data = scenarios.map(s => {
+    const roas = s.roas;
+    const adSpend = i.adSpend;
+    const revenue = adSpend * roas;
+    const customers = i.aov > 0 ? revenue / i.aov : 0;
+    const totalLanded = customers * landed;
+    const dayOneProfit = revenue - adSpend - totalLanded;
+    const dayOneProfitPct = revenue > 0 ? dayOneProfit / revenue : 0;
+    const ncpa = customers > 0 ? adSpend / customers : 0;
+    const cv3Rev = customers * i.ltv3;
+    const cv3Profit = cv3Rev - adSpend - (customers * landed);
+    const cv6Rev = customers * i.ltv6;
+    const cv6Profit = cv6Rev - adSpend - (customers * landed);
+    return { roas, adSpend, revenue, customers, totalLanded, dayOneProfit, dayOneProfitPct, ncpa, cv3Rev, cv3Profit, cv6Rev, cv6Profit };
+  });
+
+  // Build table rows
+  const rows = [
+    { label: 'NC ROAS', cells: data.map(d => fmtRoas(d.roas)) },
+    { label: 'Ad Spend Assumption', cells: data.map(d => fmt$(d.adSpend)) },
+    { label: 'Gross Margin %', cells: data.map(() => fmtPct(grossMargin)) },
+    { section: 'Day-One Economics' },
+    { label: 'Revenue', cells: data.map(d => fmt$(d.revenue)) },
+    { label: 'Total COGS + S&H', cells: data.map(d => fmt$(d.totalLanded)) },
+    { label: 'Day-One Profit $', cells: data.map(d => profitCell(d.dayOneProfit, fmt$)), highlight: true },
+    { label: 'Day-One Profit %', cells: data.map(d => profitCell(d.dayOneProfitPct, fmtPct)) },
+    { section: 'Customer Acquisition' },
+    { label: 'AOV', cells: data.map(() => fmt$(i.aov)) },
+    { label: 'NCPA (Cost per Acquisition)', cells: data.map(d => fmt$(d.ncpa)) },
+    { label: 'Customers Acquired', cells: data.map(d => fmtComma(d.customers)) },
+    { section: '3-Month Customer Value' },
+    { label: '3-Mo LTV (per customer)', cells: data.map(() => fmt$(i.ltv3)) },
+    { label: '3-Mo Total Revenue', cells: data.map(d => fmt$(d.cv3Rev)) },
+    { label: '3-Mo Profit', cells: data.map(d => profitCell(d.cv3Profit, fmt$)), highlight: true },
+    { section: '6-Month Customer Value' },
+    { label: '6-Mo LTV (per customer)', cells: data.map(() => fmt$(i.ltv6)) },
+    { label: '6-Mo Total Revenue', cells: data.map(d => fmt$(d.cv6Rev)) },
+    { label: '6-Mo Profit', cells: data.map(d => profitCell(d.cv6Profit, fmt$)), highlight: true }
+  ];
+
+  let html = '';
+  rows.forEach(r => {
+    if (r.section) {
+      html += '<tr class="section-header"><td colspan="6">' + r.section + '</td></tr>';
+    } else {
+      const cls = r.highlight ? ' class="highlight"' : '';
+      html += '<tr' + cls + '><td>' + r.label + '</td>';
+      r.cells.forEach(c => { html += '<td>' + c + '</td>'; });
+      html += '</tr>';
+    }
+  });
+  document.getElementById('scenarioBody').innerHTML = html;
+
+  // Insight status (scenario 1)
+  const d1 = data[1]; // scenario 1
+  const statusEl = document.getElementById('insightStatus');
+  if (d1.customers > 0) {
+    const perCust = d1.dayOneProfit / d1.customers;
+    if (d1.dayOneProfit >= 0) {
+      statusEl.className = 'value profit';
+      statusEl.textContent = 'Profitable ' + fmt$(perCust) + '/customer on day one';
+    } else {
+      statusEl.className = 'value loss';
+      statusEl.textContent = 'Losing ' + fmt$(Math.abs(perCust)) + '/customer on day one';
+    }
+  } else {
+    statusEl.className = 'value';
+    statusEl.textContent = 'N/A';
+  }
+
+  // Compound profit model (Scenario 1)
+  buildCompound(i, landed, grossMargin, d1);
+}
+
+function buildCompound(inputs, landed, grossMargin, s1) {
+  // Each month we acquire a new cohort identical to scenario 1.
+  // Retention profit per cohort per month = (3-mo LTV - AOV) / 2 * customers * grossMargin
+  // A cohort contributes retention in months 2 and 3 after acquisition (3-month window).
+  const customers = s1.customers;
+  const dayOneProfit = s1.dayOneProfit;
+  const retPerCohortPerMonth = inputs.aov > 0 ? ((inputs.ltv3 - inputs.aov) / 2) * customers * grossMargin : 0;
+
+  const months = [];
+  let cumulative = 0;
+  for (let m = 1; m <= 6; m++) {
+    // Retention: sum of retention from cohorts in their 2nd or 3rd month
+    // Cohort acquired in month j contributes retention in months j+1 and j+2
+    let retention = 0;
+    let retNotes = [];
+    for (let j = 1; j < m; j++) {
+      const monthsSinceAcq = m - j;
+      if (monthsSinceAcq >= 1 && monthsSinceAcq <= 2) {
+        retention += retPerCohortPerMonth;
+        retNotes.push('M' + j + ' cohort (month ' + (monthsSinceAcq + 1) + ' of 3)');
+      }
+    }
+    const total = dayOneProfit + retention;
+    cumulative += total;
+    let note = '';
+    if (m === 1) {
+      note = 'Day-one profit only; no retention yet.';
+    } else {
+      note = 'Retention from: ' + retNotes.join(', ') + '.';
+    }
+    months.push({ month: m, dayOneProfit, retention, total, cumulative, note });
+  }
+
+  let html = '';
+  months.forEach(r => {
+    html += '<tr>';
+    html += '<td>Month ' + r.month + '</td>';
+    html += '<td>' + profitCell(r.dayOneProfit, fmt$) + '</td>';
+    html += '<td>' + (r.retention > 0 ? profitCell(r.retention, fmt$) : fmt$(0)) + '</td>';
+    html += '<td>' + profitCell(r.total, fmt$) + '</td>';
+    html += '<td>' + profitCell(r.cumulative, fmt$) + '</td>';
+    html += '<td>' + r.note + '</td>';
+    html += '</tr>';
+  });
+  document.getElementById('compoundBody').innerHTML = html;
+}
+
+// Attach listeners
+document.querySelectorAll('.input-panel input:not([readonly])').forEach(el => {
+  el.addEventListener('input', recalc);
+});
+
+// Initial calc
+recalc();
+</script>
+</body>
+</html>
